@@ -1,10 +1,5 @@
-'Define categories of Action and their consequences in the World.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Define categories of Action and their consequences in the World.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import copy
 import re
@@ -22,9 +17,9 @@ class Action(object):
 
     def __init__(self, verb, agent, category, **keywords):
         if self.__class__ == Action:
-            raise StandardError('Attempt to instantiate abstract base ' +
+            raise Exception('Attempt to instantiate abstract base ' +
                                 'class action_model.Action')
-        self.id = ACTION_ID.next()
+        self.id = next(ACTION_ID)
         self.verb = verb
         self.agent = agent
         self.cause = self.agent
@@ -70,13 +65,13 @@ class Action(object):
 
     def check_refusal(self, world):
         'If the agent refuses to do the action, update the reason.'
-        if (not self.agent == '@cosmos' and 
+        if (not self.agent == '@cosmos' and
             hasattr(world.item[self.agent], 'refuses')):
             agent = world.item[self.agent]
             for (wont_do, state, reason) in agent.refuses:
                 if self.match_string(wont_do):
                     if type(state) == list:
-                        if world.room_of(self.agent) in state: 
+                        if world.room_of(self.agent) in state:
                             self.refusal = reason
                             break
                     elif state(world):
@@ -122,7 +117,7 @@ class Action(object):
             # Did the actor see the agent or direct object (if any) beforehand?
             # If the actor performed the action, the actor is aware of it.
             if (actor == self.agent or world.can_see(actor, self.agent) or
-                (hasattr(self, 'direct') and 
+                (hasattr(self, 'direct') and
                  world.can_see(actor, self.direct))):
                 aware.add(actor)
         self.check_refusal(world)
@@ -154,7 +149,7 @@ class Action(object):
 
     def moved_somewhere_different(self, actor):
         'Tells whether this action caused the actor to move elsewhere.'
-        return (self.configure and self.direct == actor and 
+        return (self.configure and self.direct == actor and
                 not self.old_parent == self.new_parent)
 
     def change(self, world, making_change=True):
@@ -163,21 +158,21 @@ class Action(object):
 
     def check_allowed(self, condition, world):
         'Does the "allowed" rule of the parent let the Item become a child?'
-        head, tag, link, parent = condition                
+        head, tag, link, parent = condition
         reason = None
-        # First, the Item cannot be a room; rooms can only be 
+        # First, the Item cannot be a room; rooms can only be
         # children of @cosmos.
         if world.item[tag].room:
             reason = 'rooms_cannot_move'
         # Next, the Item can't be made the child of itself or
         # of any descendant of itself.
         elif tag in [parent] + world.ancestors(parent):
-            reason = 'not_own_descendant' 
-        # Next, if the Item is an amount of Substance (liquid, 
+            reason = 'not_own_descendant'
+        # Next, if the Item is an amount of Substance (liquid,
         # powder, etc.), there are different cases.
         elif world.item[tag].substance:
             substance = tag.partition('_')[0]
-            # 'in' works if the amount is being placed in a 
+            # 'in' works if the amount is being placed in a
             # vessel, or if a source is being replenished, or if
             # the amount is being moved to the substance item.
             if link == 'in':
@@ -327,13 +322,13 @@ class Behave(Action):
     def entails(self, world):
         """Entailed Actions for Behave:
 
-        Configure the actor to a new Room after leaving, remove food after 
+        Configure the actor to a new Room after leaving, remove food after
         eating."""
         actions = []
         if len(self.failed) > 0:
             return actions
         # When an actor leaves in direction that is an exit, the Behave
-        # action entails a new action: A Configure action that moves the actor 
+        # action entails a new action: A Configure action that moves the actor
         # to the new room or through the door.
         room = world.room_of(self.agent)
         if self.verb == 'leave' and room.exit(self.direction) is not None:
@@ -356,7 +351,7 @@ class Behave(Action):
                 new_parent = ('in', to_be_consumed.partition('_')[0])
             else:
                 new_parent = ('of', '@cosmos')
-            actions.append(Configure('polish_off', '@cosmos', 
+            actions.append(Configure('polish_off', '@cosmos',
                                      direct=to_be_consumed,
                                      new=new_parent, salience=0))
         return actions
@@ -421,7 +416,7 @@ class Configure(Action):
                 room_tag = str(world.room_of(actor))
                 # If the item disappeared from sight, transfer it out...
                 if seen_by[actor] and not world.can_see(actor, self.direct):
-                    world.transfer_out(item, actor, self.end)  
+                    world.transfer_out(item, actor, self.end)
                 if (actor == self.agent or actor == self.direct or
                     world.can_see(actor, self.direct)):
                     # After the Action, the Actor can see the Item.
@@ -450,7 +445,7 @@ class Configure(Action):
                     world.concept[actor].item[room_tag].blanked and
                     world.can_see(actor, room_tag)):
                     world.transfer(world.item[room_tag], actor, self.end)
-                    look_at = Sense('examine', actor, 
+                    look_at = Sense('examine', actor,
                                     modality='sight', direct=room_tag)
                     look_at.cause = ':' + str(self.id) + ':'
                     self.enlightened.append(look_at)
@@ -461,7 +456,7 @@ class Configure(Action):
     def pre(self, world):
         """Preconditions for Configure:
 
-        Only @cosmos may Configure Items that are part_of others, Doors, or 
+        Only @cosmos may Configure Items that are part_of others, Doors, or
         SharedThings. Configure requires a new link and parent. To be configured
         from "in" a container, the container (if it opens) must be open. To go
         "in" or "through" something, that Item must (if it opens) be open. Be
@@ -475,9 +470,9 @@ class Configure(Action):
                 pre_list.append(('never', 'configure_doors'))
             if hasattr(world.item[self.direct], 'sharedthing'):
                 pre_list.append(('never', 'configure_sharedthings'))
-        pre_list.append(('configure_to_different', self.direct, 
+        pre_list.append(('configure_to_different', self.direct,
                          self.new_link, self.new_parent))
-        if (hasattr(self, 'old_link') and self.old_link == 'in' and 
+        if (hasattr(self, 'old_link') and self.old_link == 'in' and
             hasattr(world.item[self.old_parent], 'open')):
             pre_list.append(('has_value', self.old_parent, 'open', True))
         if (self.new_link in ['in', 'through'] and
@@ -487,7 +482,7 @@ class Configure(Action):
             pre_list.append(('parent_is', self.direct, self.old_link,
                             self.old_parent))
         pre_list.append(('can_access_direct', self.agent, [self.direct]))
-        if (not self.new_parent == '@cosmos' and 
+        if (not self.new_parent == '@cosmos' and
             not world.item[self.new_parent].room):
             pre_list.append(('can_access_indirect', self.agent,
                              [self.new_parent]))
@@ -512,9 +507,9 @@ class Configure(Action):
             if world.item[self.new_parent].door:
                 rooms = world.item[self.new_parent].connects[:]
                 rooms.remove(self.old_parent)
-                goal = rooms[0] 
+                goal = rooms[0]
                 actions.append(Configure('pass_through', self.agent,
-                                 template=('[agent/s] [emerge/v] from [' + 
+                                 template=('[agent/s] [emerge/v] from [' +
                                            self.new_parent + '/o]'),
                                  new=('in', goal), direct=self.direct))
             else:
@@ -526,14 +521,14 @@ class Configure(Action):
              not self.old_parent == self.new_parent and
              not self.new_parent == '@cosmos'):
             room = self.new_parent
-            look_at = Sense('examine', self.direct, 
+            look_at = Sense('examine', self.direct,
                             modality='sight', direct=room)
             look_at.cause = ':' + str(self.id) + ':'
             actions.append(look_at)
         elif world.item[self.direct].substance:
             substance = self.direct.partition('_')[0]
-            if (self.new_link == 'in' and 
-                hasattr(world.item[self.old_parent], 'source') and 
+            if (self.new_link == 'in' and
+                hasattr(world.item[self.old_parent], 'source') and
                 world.item[self.old_parent].source == substance):
                 _, amount = world.item[substance].children[0]
                 actions.append(Configure('replenish', '@cosmos',
@@ -546,7 +541,7 @@ class Configure(Action):
                 # The substance was poured onto something, and needs to vanish.
                 actions.append(Configure('vanish', '@cosmos',
                                          new=('in', substance),
-                                         template='the [' + self.direct + 
+                                         template='the [' + self.direct +
                                                   '/s] [is/v] gone [now]',
                                          direct=self.direct,))
         actions += self.enlightened
@@ -576,8 +571,8 @@ class Modify(Action):
 
     def change(self, world, making_change=True):
         'Alter the state of the Item to the new (or old) one.'
-        # If attributes are missing, indicating that any values work for this 
-        # modify event, they are set with using the values in the world at 
+        # If attributes are missing, indicating that any values work for this
+        # modify event, they are set with using the values in the world at
         # this point. This allows the event to be undone later with the
         # correct old value put back into place.
         #
@@ -595,7 +590,7 @@ class Modify(Action):
         # to see if the actor's room became visible and needs an update.
         if making_change:
             for actor in world.concept:
-                if (actor in [self.agent, self.direct] or 
+                if (actor in [self.agent, self.direct] or
                     world.can_see(actor, self.direct)):
                     world.transfer(item, actor, self.end)
                 room_tag = str(world.room_of(actor))
@@ -603,7 +598,7 @@ class Modify(Action):
                     world.concept[actor].item[room_tag].blanked and
                     world.can_see(actor, room_tag)):
                     world.transfer(world.item[room_tag], actor, self.end)
-                    look_at = Sense('examine', actor, 
+                    look_at = Sense('examine', actor,
                                     modality='sight', direct=room_tag)
                     look_at.cause = ':' + str(self.id) + ':'
                     self.enlightened.append(look_at)
@@ -611,7 +606,7 @@ class Modify(Action):
     def pre(self, world):
         """Preconditions for Modify:
 
-        The Item must have the feature being modified. Modify requires a 
+        The Item must have the feature being modified. Modify requires a
         different value. The old value, if specified, must match. The item
         must be accessible by the agent. If opening an Item, it must (if
         lockable) be unlocked. If burning an Item, fire must be accessible.
@@ -627,7 +622,7 @@ class Modify(Action):
             if hasattr(world.item[self.direct], 'locked'):
                 pre_list.append(('has_value', self.direct, 'locked', False))
         if self.feature == 'burnt':
-            flames = [i for i in world.item if 
+            flames = [i for i in world.item if
                       hasattr(world.item[i], 'flame') and world.item[i].flame]
             pre_list.append(('can_access_flames', self.agent, flames))
         if self.feature == 'locked':
@@ -671,4 +666,3 @@ class Sense(Action):
         if self.modality == 'touch':
             pre_list.append(('can_access_direct', self.agent, [self.direct]))
         return pre_list
-

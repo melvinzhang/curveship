@@ -1,10 +1,5 @@
-'Surface realization: Convert a fully specified section to a string.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Surface realization: Convert a fully specified section to a string.'
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import re
 import types
@@ -202,7 +197,7 @@ class Sentence(object):
         subjects, tf = (), False
         for part in self.parts:
             more = ''
-            if type(part) is types.StringType:
+            if type(part) is str:
                 if part == '[begin-caps]':
                     all_caps = True
                 elif part == '[end-caps]':
@@ -221,7 +216,7 @@ class Sentence(object):
         string = re.sub('\( ', '(', string)
         string = re.sub(' \)', ')', string)
         return string.strip()
- 
+
 
 def fix_orthography(string, capitalize=True):
     'Capitalize (optionally) and punctuate the end of a sentence string.'
@@ -317,7 +312,7 @@ class NP(Word):
 class Noun(Word):
     'Noun describing an Item; may be pronominalized upon realization.'
 
-    subject, object, possessive, reflexive = range(4)
+    subject, object, possessive, reflexive = list(range(4))
 
     def __init__(self, tag, form, adjs, time, **keywords):
         self.form = form
@@ -344,7 +339,7 @@ class Noun(Word):
         if self.pronominalize:
             # Ignore what pronoun returns as subjects to avoid double-
             # counting this word
-            (string, _, __) = Pronoun(tag, self.form, 
+            (string, _, __) = Pronoun(tag, self.form,
                 self.time).realize(concept, discourse, settings, subjects, tf)
         else:
             extra_adjs = ', '.join(self.adjs)
@@ -388,7 +383,7 @@ class Deictic(Word):
 class Pronoun(Word):
     'Pronoun of some form representing some Item.'
 
-    subject, object, possessive, reflexive = range(4)
+    subject, object, possessive, reflexive = list(range(4))
 
     subject_pronoun = {1:
     {'singular': {'male': 'I', 'female': 'I', 'neuter': 'I', '?': 'I'},
@@ -643,7 +638,7 @@ class Verb(Word):
         self.intensive = False
         self.negated = False
         self.future_style = 'will'
-        for (key, value) in keywords.items():
+        for (key, value) in list(keywords.items()):
             setattr(self, key, value)
         self.is_be = (tag in ['be', 'am', 'are', 'is'])
         self.time = time
@@ -825,7 +820,7 @@ class Verb(Word):
                                   progressive)
         if self.intensive or self.negated:
             main_word, helper_words = self.apply_intensive(main_word,
-                                      helper_words, person, number, 
+                                      helper_words, person, number,
                                       settings.tense_rs, settings.tense_er,
                                       progressive)
         if self.negated:
@@ -853,4 +848,3 @@ def negate(main_word, helper_words):
         helper_list = helper_list[:1] + ['not'] + helper_list[1:]
         helper_words = ' '.join(helper_list)
     return main_word, helper_words
-

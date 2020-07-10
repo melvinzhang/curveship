@@ -1,11 +1,36 @@
-#!/usr/bin/env python
-'An interactive fiction system offering control over the narrative discourse.'
+#!/usr/bin/env python3
+"""CURVESHIP - Curveship-py
+
+An interactive fiction system offering control over the narrative discourse.
+
+Copyright 2019, 2020 Nick Montfort
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+
+This Python 3 version is called 'Curveship-py' because there is also a JavaScript
+version of the system.
+
+0.6.01 fixes line endings, misspellings, and a missing file.
+
+Documentation is available at https://nickm.com/curveship/py
+"""
 
 __author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
+__copyright__ = 'Copyright 2019, 2020 Nick Montfort'
 __license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+__version__ = '0.6.01'
+__maintainer__ = 'Currently not maintained! Have fun, though.'
+__status__ = 'Production'
 
 import sys
 import os
@@ -58,8 +83,8 @@ def start_log(out_streams):
         latest = max([int(log_file) for log_file in log_files])
     log_file = 'logs/' + str(latest + 1) + '.log'
     try:
-        log = file(log_file, 'w')
-    except IOError, err:
+        log = open(log_file, 'w')
+    except IOError as err:
         msg = ('Unable to open log file "' + log_file + '" for ' +
                'writing due to this error: ' + str(err))
         raise joker.StartupError(msg)
@@ -82,10 +107,10 @@ def initialize(if_file, spin_files, out_streams):
     world = world_model.World(fiction)
     world.set_concepts(fiction.concepts)
     for i in dir(fiction):
-        if i[:8] == 'COMMAND_':            
+        if i[:8] == 'COMMAND_':
             setattr(command_map, i.partition('_')[2], getattr(fiction, i))
             delattr(fiction, i)
-    for (key, value) in discourse_model.SPIN_DEFAULTS.items():
+    for (key, value) in list(discourse_model.SPIN_DEFAULTS.items()):
         if key not in fiction.discourse['spin']:
             fiction.discourse['spin'][key] = value
     while len(spin_files) > 0:
@@ -117,7 +142,7 @@ def handle_input(user_input, world, discourse, in_stream, out_streams):
         user_input, id_list, world = simulator(user_input, world,
                                                   discourse.spin['commanded'])
         if hasattr(world.item['@cosmos'], 'update_spin'):
-            discourse.spin = world.item['@cosmos'].update_spin(world, 
+            discourse.spin = world.item['@cosmos'].update_spin(world,
                                                                discourse)
         spin = discourse.spin
         if hasattr(world.item['@cosmos'], 'use_spin'):
@@ -146,14 +171,14 @@ def each_turn(world, discourse, in_stream, out_streams):
         reply_text, discourse = teller(id_list, focal_concept, discourse)
         presenter.present(reply_text, out_streams)
     else:
-        if (hasattr(discourse, 'initial_inputs') and 
+        if (hasattr(discourse, 'initial_inputs') and
              len(discourse.initial_inputs) > 0):
             input_string = discourse.initial_inputs.pop(0)
             user_input = preparer.tokenize(input_string, discourse.separator)
             presenter.present('[> ' + input_string, out_streams, '', '')
         else:
-            user_input = preparer.prepare(discourse.separator, 
-                                          discourse.typo.prompt, in_stream, 
+            user_input = preparer.prepare(discourse.separator,
+                                          discourse.typo.prompt, in_stream,
                                           out_streams)
         # After each input, present a newline all by itself.
         presenter.present('\n', out_streams, '', '')
@@ -173,7 +198,7 @@ def simulator(user_input, world, commanded, actions_to_do=None):
     done_list = []
     start_time = world.ticks
     for tag in world.item:
-        if (world.item[tag].actor and not tag == commanded and 
+        if (world.item[tag].actor and not tag == commanded and
             world.item[tag].alive):
             # The commanded character does not act automatically. That is,
             # his, her, or its "act" method is not called.
@@ -243,7 +268,7 @@ def main(argv, in_stream=sys.stdin, out_stream=sys.stdout):
         if len(world.act) > 0:
             _, id_list, world = simulator(None, world,
                                           discourse.spin['commanded'],
-                                          world.act.values())
+                                          list(world.act.values()))
             focal_concept = world.concept[discourse.spin['focalizer']]
             reply_text, discourse = teller(id_list, focal_concept, discourse)
             presenter.present(reply_text, out_streams)
@@ -252,13 +277,13 @@ def main(argv, in_stream=sys.stdin, out_stream=sys.stdout):
             world, discourse = each_turn(world, discourse, in_stream,
                                          out_streams)
             out_streams.log.write('#' + str(time.time() - previous_time))
-    except joker.StartupError, err:
+    except joker.StartupError as err:
         presenter.present(err.msg, Multistream([sys.stderr]))
         return_code = 2
-    except KeyboardInterrupt, err:
+    except KeyboardInterrupt as err:
         presenter.present('\n', out_streams)
         return_code = 2
-    except EOFError, err:
+    except EOFError as err:
         presenter.present('\n', out_streams)
         return_code = 2
     finally:
@@ -269,4 +294,3 @@ def main(argv, in_stream=sys.stdin, out_stream=sys.stdout):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
-

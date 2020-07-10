@@ -1,10 +1,5 @@
-'Carry out directives such as save, restore, and quit.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Carry out directives such as save, restore, and quit.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import os
 import pickle
@@ -17,30 +12,30 @@ import reply_planner
 MESSAGE = {
     'are': '[] are the [].',
 
-    'world_missing_item': 'The item [] does not exist in the interactive ' + 
+    'world_missing_item': 'The item [] does not exist in the interactive ' +
         "fiction's world.",
 
-    'world_usage': 'The "world" debugging directive provides information ' + 
-        'about items as represented in the simulated world, as opposed to ' + 
-        'any one actor\'s concept of it: \n\n"world actions" shows the ' + 
+    'world_usage': 'The "world" debugging directive provides information ' +
+        'about items as represented in the simulated world, as opposed to ' +
+        'any one actor\'s concept of it: \n\n"world actions" shows the ' +
         'actions from the world .\n"world tree" shows items in the world as ' +
-        'they are hierarchically arranged.\n"world tree [item]" shows a ' + 
-        'subtree rooted at a specific item.\n"world dir [item]" shows the ' + 
+        'they are hierarchically arranged.\n"world tree [item]" shows a ' +
+        'subtree rooted at a specific item.\n"world dir [item]" shows the ' +
         'directory of attributes of a specific item.',
 
     'concept_missing_item': 'The item [] is not included in []\'s concept of ' +
         'the world.',
 
     'concept_usage': 'The "concept" debugging directive provides information ' +
-        'about items as represented in an actor\'s concept: \n\n"concept ' + 
-        '[actor] actions" shows the actions known to the actor.\n"concept ' + 
-        '[actor] tree" shows the item tree of the actor\'s concept.\n' + 
-        '"concept [actor] tree [item]" shows a subtree rooted at a specific ' + 
-        'item.\n"concept [actor] dir [item]" shows the directory of ' + 
-        'attributes of a specific item as it represented in that actor\'s ' + 
+        'about items as represented in an actor\'s concept: \n\n"concept ' +
+        '[actor] actions" shows the actions known to the actor.\n"concept ' +
+        '[actor] tree" shows the item tree of the actor\'s concept.\n' +
+        '"concept [actor] tree [item]" shows a subtree rooted at a specific ' +
+        'item.\n"concept [actor] dir [item]" shows the directory of ' +
+        'attributes of a specific item as it represented in that actor\'s ' +
         'concept.\n\nPossible actors are: [].',
 
-    'inputs': 'The number of [] input so far is [] in this session, [] in ' + 
+    'inputs': 'The number of [] input so far is [] in this session, [] in ' +
         'this traversal.',
 
     'invalid_actor': 'The tag "[]" does not specify a valid actor. Possible ' +
@@ -50,7 +45,7 @@ MESSAGE = {
 
     'light_level': "Light level in focalizer's room or compartment: [].",
 
-    'not_an_actor': 'It is only possible to set the [] to be one of the ' + 
+    'not_an_actor': 'It is only possible to set the [] to be one of the ' +
         'following: [].',
 
     'nothing_happened': 'Nothing has happened yet.',
@@ -60,7 +55,7 @@ MESSAGE = {
     'spin_report': 'Current spin: \n\n[]',
 
     'spin_usage': 'Type "spin" or "narrating" by itself to see the current ' +
-        'spin. Add other arguments to view or set specific values, e.g., ' + 
+        'spin. Add other arguments to view or set specific values, e.g., ' +
         '"narrating time after" to set the time of narrating to after events.',
 
     'quitting': 'This ends the session.',
@@ -80,7 +75,7 @@ MESSAGE = {
     'save_error': 'The session could not be save due to an error ' +
          'opening or writing the save file.',
 
-    'save_usage': 'To save the game, type "save [filename]", where ' + 
+    'save_usage': 'To save the game, type "save [filename]", where ' +
         '[filename] consists of only letters, underscores, and numbers.',
 
     'saved': 'The session has been saved.',
@@ -96,7 +91,7 @@ MESSAGE = {
 
     'time_already': 'That is the existing setting for the time of narration.',
 
-    'time_usage': 'Time of narration can be set to "before," "during," or ' + 
+    'time_usage': 'Time of narration can be set to "before," "during," or ' +
         '"after" events.',
 
     'time_words_usage': 'Time words can be turned on or off.',
@@ -104,9 +99,9 @@ MESSAGE = {
     'undo_impossible': 'It is not possible to undo [] when the total number ' +
         'of commands is [].',
 
-    'undo_usage': 'The directive "undo" can be used alone or with a number ' + 
+    'undo_usage': 'The directive "undo" can be used alone or with a number ' +
         'of commands, for instance, "undo 3," to cancel the effects of one ' +
-        'or more previous commands. To type a command to undo something ' + 
+        'or more previous commands. To type a command to undo something ' +
         'within the fictional world, use a similar word, such as "unfasten."',
 
     'undone': 'The command "[]" has been undone.',
@@ -141,18 +136,18 @@ def load_file(file_name, required, defaults, module_type):
     pieces.reverse()
     module_name = '.'.join(pieces)
     try:
-        mod = __import__(module_name, globals(), locals(), required, -1)
+        mod = __import__(module_name, globals(), locals(), required)
         for attr in required:
             if not hasattr(mod, attr):
                 msg = ('This is not a complete fiction file: "' + attr +
                        '" is a required attribute, but the ' + module_type +
                        ' module ' + module_name + ' lacks it.')
                 raise StartupError(msg)
-        for (attr, default) in defaults.items():
+        for (attr, default) in list(defaults.items()):
             module = __import__(module_name, globals(), locals(), [attr])
             if not hasattr(module, attr):
                 setattr(module, attr, default)
-    except ImportError, err:
+    except ImportError as err:
         msg = ('Unable to open '+ module_type + ' module "' + module_name +
                '" due to this error: ' + str(err))
         raise StartupError(msg)
@@ -258,7 +253,7 @@ def wc_info(tokens, world_or_concept, world, discourse):
     'Reports on the world or a concept: tree, item info, actions.'
     report_text = ''
     if tokens[1] == 'actions':
-        ids = world_or_concept.act.keys()
+        ids = list(world_or_concept.act.keys())
         if len(ids) == 0:
             report_text = report('nothing_happened')
         else:
@@ -343,7 +338,7 @@ def exits(_, world, discourse):
     "Lists the exits from the focalizer's current room."
     focalizer = discourse.spin['focalizer']
     exit_string = ""
-    for (direction, room) in world.room_of(focalizer).exits.items():
+    for (direction, room) in list(world.room_of(focalizer).exits.items()):
         exit_string += direction + ' -> ' + room + '\n'
     report_text = report('are', exit_string,
                          "the exits from the focalizer's current room")
@@ -498,7 +493,7 @@ def narrating_uses(tokens, world, discourse):
             new_spin = load_spin(discourse.spin, spin_file)
             discourse.spin.update(new_spin)
             report_text = report('uses', tokens[2])
-        except StartupError, err:
+        except StartupError as err:
             report_text = str(err) + '. ' + report('uses_usage')
     return (report_text, world, discourse)
 
@@ -507,7 +502,7 @@ def narrating(tokens, world, discourse):
     'Returns a report describing the current spin.'
     report_text = report('spin_usage')
     if len(tokens) < 2:
-        pairs = discourse.spin.items()
+        pairs = list(discourse.spin.items())
         pairs.sort()
         longest = max([len(i) for (i, _) in pairs])
         string = ''
@@ -535,7 +530,7 @@ def recount(tokens, world, discourse):
     else:
         report_text = report('recounting')
         concept = world.concept[discourse.spin['focalizer']]
-        ids = concept.act.keys()
+        ids = list(concept.act.keys())
         ids.sort()
         start = ids[0]
         end = ids[-1]
@@ -599,7 +594,7 @@ def save(tokens, world, discourse):
             save_file.close()
             report_text = report('saved')
         except IOError:
-            report_text = report('save_error')   
+            report_text = report('save_error')
     else:
         report_text = report('save_usage')
     return (report_text, None, world, discourse)
@@ -678,7 +673,7 @@ def joke(tokens, world, discourse):
         (report_text, reply_text, world,
          discourse) = globals()[head](tokens, world, discourse)
     else:
-        raise StandardError('The directive "' + head + '" is defined in the ' +
+        raise Exception('The directive "' + head + '" is defined in the ' +
          'discourse, but the corresponding routine in the Joker is missing.')
     texts = (report_text, reply_text)
     return (texts, world, discourse)

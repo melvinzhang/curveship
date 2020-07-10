@@ -1,16 +1,14 @@
-'Represent initial and ongoing discourse features. Extended by games/stories.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Represent initial and ongoing discourse features. Extended by games/stories.'
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import math
 import re
 import types
 
 import input_model
+
+def cmp(a, b):
+    return (int(a) > int(b)) - (int(a) < int(b))
 
 class SpecialTime(object):
     'Adapted from extremes.py, based on PEP 326.'
@@ -227,7 +225,7 @@ class Discourse(object):
     """The per-fiction/per-game discourse model.
 
     This represents all exchanges of language between system and interactor and
-    all verbal resources that are needed to recognize, narrate and describe, 
+    all verbal resources that are needed to recognize, narrate and describe,
     and output replies from the Joker."""
 
     typo = Typography()
@@ -259,11 +257,11 @@ class Discourse(object):
                 setattr(self, i, discourse[i])
         for i in ['command_grammar', 'compass', 'verb_representation']:
             if i in discourse:
-                for key, new_value in discourse[i].items():
+                for key, new_value in list(discourse[i].items()):
                     getattr(self, i)[key] = new_value
         self.givens = set()
         self.english_to_link = {}
-        for (relation, names) in self.link_to_english.items():
+        for (relation, names) in list(self.link_to_english.items()):
             for name in names:
                 self.english_to_link[name] = relation
         self.commands = []
@@ -290,7 +288,7 @@ class Discourse(object):
         'Creates an English list, delimited and conjoined as specified.'
         for i in range(0, len(phrases)):
             # Convert any integers in the list to strings here
-            if type(phrases[i]) == types.IntType:
+            if type(phrases[i]) == int:
                 phrases[i] = str(phrases[i])
         if len(phrases) >= 2:
             phrases[-1] = conjunction + ' ' + phrases[-1]
@@ -511,7 +509,7 @@ class Discourse(object):
 
         'STRIKE ACCESSIBLE':
          ['attack ACCESSIBLE',
-          '(break|destroy|engage|fight|hit|kill|murder|shatter|' + 
+          '(break|destroy|engage|fight|hit|kill|murder|shatter|' +
           'slaughter|slay|smack|smash) ACCESSIBLE',
           'strike( down)? ACCESSIBLE',
           'strike ACCESSIBLE down'],
@@ -585,12 +583,12 @@ class Discourse(object):
 
         'UTTER STRING STRING STRING':
          ['say STRING STRING STRING',
-          '(chant|mumble|pronounce|shout|sing|tell|utter) STRING STRING ' + 
+          '(chant|mumble|pronounce|shout|sing|tell|utter) STRING STRING ' +
              'STRING'],
 
         'UTTER STRING STRING STRING STRING':
          ['say STRING STRING STRING STRING',
-          '(chant|mumble|pronounce|shout|sing|tell|utter) STRING STRING ' + 
+          '(chant|mumble|pronounce|shout|sing|tell|utter) STRING STRING ' +
              'STRING STRING'],
 
         'WAIT':
@@ -740,13 +738,13 @@ class Discourse(object):
         'allowed_through': '[direct/s] [fit/do/not/v] through [indirect/o]',
         'can_access_direct': "[direct/s] [is/not/v] within [agent's] reach",
         'can_access_indirect': "[indirect/s] [is/not/v] within [agent's] reach",
-        'can_access_flames': '[agent/s] [have/not/v] anything to light ' + 
+        'can_access_flames': '[agent/s] [have/not/v] anything to light ' +
                              '[direct/o] with',
         'can_access_key': "the key [is/not/1/v] within [agent's] reach",
         'configure_to_different': '[agent/s] [try/ing/v] to move [direct/o]' +
                                   ' to where [direct/s] already [is/v]',
         'enough_light': 'it [is/1/v] too dark for [agent/s] to see',
-        'exit_exists': '[agent/s] [is/not/v] able to find an exit to the' + 
+        'exit_exists': '[agent/s] [is/not/v] able to find an exit to the' +
                         ' [direction]',
         'good_enough_view': '[agent/s] [do/v] not have a good enough view ' +
                             'from [here]',
@@ -774,7 +772,7 @@ class Discourse(object):
           # Don't add anything; the preventing action will be narrated and
           # will explain why this action was prevented.
         'rooms_cannot_move': 'entire locations [move/do/not/2/v]',
-        'substance_contained': '[indirect/s] [is/not/v] able to hold' + 
+        'substance_contained': '[indirect/s] [is/not/v] able to hold' +
                                ' [direct/o]',
         'value_unchanged': '[direct/s] [is/v] already [feature/direct/o]'}
 
@@ -784,4 +782,3 @@ class Discourse(object):
         'hearing': 'hear',
         'smell': 'smell',
         'taste': 'taste'}
-

@@ -1,10 +1,5 @@
-'World and Concept classes for instantiation by interactive fictions.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""World and Concept classes for instantiation by interactive fictions.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import copy
 import operator
@@ -15,16 +10,16 @@ import item_model
 def check_for_reserved_tags(items):
     'Raise an error if a reserved tag, such as @cosmos, is in the list.'
     if '@cosmos' in items:
-        raise StandardError('The tag "@cosmos" is reserved for the ' +
+        raise Exception('The tag "@cosmos" is reserved for the ' +
          'special item at the root of the item tree. Use a different ' +
          'tag for item now tagged "@cosmos".')
     if '@focalizer' in items:
-        raise StandardError('The tag "@focalizer" is reserved for use ' +
+        raise Exception('The tag "@focalizer" is reserved for use ' +
          'in indicating the actor who is currently focalizing the ' +
          'narration. Use a different tag for item now tagged ' +
          '"@focalizer".')
     if '@commanded' in items:
-        raise StandardError('The tag "@commanded" is reserved for use ' +
+        raise Exception('The tag "@commanded" is reserved for use ' +
          'in indicating the actor who is currently being commanded. ' +
          'Use a different tag for item now tagged "@commanded".')
 
@@ -34,7 +29,7 @@ class WorldOrConcept(object):
 
     def __init__(self, item_list, actions):
         if self.__class__ == WorldOrConcept:
-            raise StandardError('Attempt to instantiate abstract base ' +
+            raise Exception('Attempt to instantiate abstract base ' +
                                 'class world_model.WorldOrConcept')
         self.item = {}
         self.act = actions
@@ -43,7 +38,7 @@ class WorldOrConcept(object):
         # Construct the World's Item dictionary from the Item list:
         for item in item_list:
             if str(item) in seen_tags:
-                raise StandardError('The tag "' + str(item) + '" is ' +
+                raise Exception('The tag "' + str(item) + '" is ' +
                  "given to more than one item in the fiction's code. " +
                  'Item tags must be unique.')
             seen_tags.append(str(item))
@@ -56,7 +51,7 @@ class WorldOrConcept(object):
     def accessible(self, actor):
         'List all Items an Item can access.'
         if actor == '@cosmos':
-            return self.item.keys()
+            return list(self.item.keys())
         compartment = self.compartment_of(actor)
         tag_list = [str(compartment)]
         for (link, child) in compartment.children:
@@ -66,7 +61,7 @@ class WorldOrConcept(object):
         tag_list += compartment.shared + self.doors(str(compartment))
         accessible_list = []
         for tag in tag_list:
-            if (not hasattr(self.item[tag], 'accessible') or 
+            if (not hasattr(self.item[tag], 'accessible') or
                 self.item[tag].accessible):
                 accessible_list.append(tag)
         return accessible_list
@@ -90,7 +85,7 @@ class WorldOrConcept(object):
                    (not compartment.transparent and
                     hasattr(compartment, 'open') and not compartment.open)):
         # Keep ascending to the next parent until we encounter either
-        # (1) a room, (2) @cosmos, or (3) an opaque Item that has the "open" 
+        # (1) a room, (2) @cosmos, or (3) an opaque Item that has the "open"
         # feature and is closed.
             compartment = self.item[compartment.parent]
         return compartment
@@ -99,7 +94,7 @@ class WorldOrConcept(object):
         """Return a list: the cosmos, the Room of the agent, (living) contents.
 
         These are all the Items that can prevent or react to an Action by
-        the agent of the action. If the Item has an "alive" feature, it is only 
+        the agent of the action. If the Item has an "alive" feature, it is only
         added if alive is True.
 
         A special case: If the agent has configured itself to a new Room, the
@@ -127,7 +122,7 @@ class WorldOrConcept(object):
         """List all Items hierarchically under "tag".
 
         If stop='bottom', descend all the way. If stop='closed', go to down to
-        closed children, but not inside those; for stop='opaque', stop at 
+        closed children, but not inside those; for stop='opaque', stop at
         opaque ones."""
         items_under = []
         if (stop == 'bottom' or
@@ -188,7 +183,7 @@ class Concept(WorldOrConcept):
             cosmos = item_model.Actor('@cosmos', called='nature',
                                        allowed=can.have_any_item)
         self.item['@cosmos'] = cosmos
-        for (tag, item) in self.item.items():
+        for (tag, item) in list(self.item.items()):
             if not tag == '@cosmos':
                 self.item[item.parent].add_child(item.link, tag, True)
 
@@ -273,7 +268,7 @@ class World(WorldOrConcept):
                         # The amount should become the child of the main
                         # Substance Item, which is of @cosmos. It's necessary
                         # to create one amount for each empty vessel (or
-                        # vessel that is holding something else) since that 
+                        # vessel that is holding something else) since that
                         # vessel might hold the Substance later.
                         parents.append(str(substance))
             tag_number = 1
@@ -288,7 +283,7 @@ class World(WorldOrConcept):
             fiction.cosmos = item_model.Actor('@cosmos', called='nature',
                                        allowed=can.have_any_item)
         self.item['@cosmos'] = fiction.cosmos
-        for (tag, item) in self.item.items():
+        for (tag, item) in list(self.item.items()):
             if not tag == '@cosmos':
                 self.item[item.parent].add_child(item.link, tag, True)
 
@@ -343,7 +338,7 @@ class World(WorldOrConcept):
             not tag in self.item[str(actor_place)].shared and
             not tag in self.doors(str(actor_place))):
         # The Item could be either a SharedThing or a Door if its Room is
-        # None. If its Room is None and neither is the case, however, it 
+        # None. If its Room is None and neither is the case, however, it
         # must be "out of play."
             return 'item_in_play'
         compartment = self.compartment_of(actor)
@@ -354,7 +349,7 @@ class World(WorldOrConcept):
             view_tags = [str(compartment)]
             for (link, child) in compartment.children:
                 if not link == 'on':
-                    view_tags += [child] 
+                    view_tags += [child]
                     view_tags += self.descendants(child, stop='opaque')
         else:
         # Otherwise, list all the Items to which there is a line of sight
@@ -362,9 +357,9 @@ class World(WorldOrConcept):
             if self.item[str(actor_place)].door:
                 rooms_visible = self.item[str(actor_place)].connects
             else:
-                rooms_visible = actor_place.view.keys()
+                rooms_visible = list(actor_place.view.keys())
             for room_tag in [str(actor_place)] + rooms_visible:
-                view_tags += ([room_tag] + 
+                view_tags += ([room_tag] +
                                self.descendants(room_tag, stop='opaque'))
         if tag not in view_tags:
             return 'line_of_sight'
@@ -379,7 +374,7 @@ class World(WorldOrConcept):
         lit = self.light_level(tag)
         if str(self.compartment_of(actor)) == tag:
         # The compartment itself is the one case where it's important to
-        # get the interior light level. If the line of sight crosses the 
+        # get the interior light level. If the line of sight crosses the
         # compartment, the light level doesn't matter; the item can't be seen.
         # If inside, the light level is computed within the compartment. But
         # the compartment itself has different "inside" and "outside" light
@@ -429,7 +424,7 @@ class World(WorldOrConcept):
                 cosmos_items.append(copy.deepcopy(self.item[i]))
         cosmos_acts = copy.deepcopy(self.act)
         self.concept['@cosmos'] = Concept(cosmos_items, cosmos_acts)
-        for actor in self.concept.keys():
+        for actor in list(self.concept.keys()):
             self.concept[actor].concept_of = actor
 
     def transfer(self, item, actor, time):
@@ -454,7 +449,7 @@ class World(WorldOrConcept):
                 self.transfer(self.item[shared_tag], actor, time)
             for door_tag in self.doors(str(item)):
                 self.transfer(self.item[door_tag], actor, time)
-        
+
     def transfer_out(self, item, actor, time):
         "Remove the Item from the Actor's Concept."
         concept = self.concept[actor]
@@ -476,4 +471,3 @@ class World(WorldOrConcept):
             last_action = self.act.pop(last_id)
             last_action.undo(self)
         self.back_up_clock(target_time)
-

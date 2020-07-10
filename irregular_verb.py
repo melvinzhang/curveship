@@ -1,16 +1,10 @@
 """English-language verb forms for all but the most simply conjugated verbs.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019.
 
-Not only irregular verbs (strictly speaking) but also any regular verbs that
+Lists not only irregular verbs (strictly speaking); also any regular verbs that
 are not correctly conjugated by the simple algorithm in the Realizer. The
 Realizer does not do any consonant doubling, so verbs whose consontants are
-doubled have to be included here.
-"""
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+doubled have to be included here."""
 
 FORMS = {
     'abet': ('abetted', 'abetted', 'abetting'),

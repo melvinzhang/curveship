@@ -1,10 +1,5 @@
-'Represent existents with Item classes, instantiated by games/stories.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Represent existents with Item classes, instantiated by games/stories.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import random
 import re
@@ -30,10 +25,10 @@ def check_attributes(identifier, required, impossible, attributes):
     for present in impossible:
         if present in attributes:
             some_wrong += ('For the item "' + identifier + '" there is ' +
-                'an attempt to specify the attribute "' + present + 
+                'an attempt to specify the attribute "' + present +
                 '" which cannot be specified for this type of item.\n')
     if len(some_wrong) > 0:
-        raise StandardError(some_wrong[:-1])
+        raise Exception(some_wrong[:-1])
 
 def determine_called(called):
     'Using the called string, determine the name triple.'
@@ -78,8 +73,8 @@ def set_features(item, category, keywords):
 
     referring: string | None
         Additional words that can be typed to refer to the item. Optional words
-        first, separated by spaces; then "|", then space-delimited names. If 
-        referring is the '' (the empty string, which is the default), there are 
+        first, separated by spaces; then "|", then space-delimited names. If
+        referring is the '' (the empty string, which is the default), there are
         no special words added, but the item can still be referred to by words
         derived from its category and qualities. For the special case in which
         there should be no way to refer to an item, set referring to None.
@@ -106,7 +101,7 @@ def set_features(item, category, keywords):
 
     mention: True | False
         Should the item ever be mentioned (for instance, in lists)? Almost
-        everything should be, but not, for instance, part of another item 
+        everything should be, but not, for instance, part of another item
         that is described in the main description of the parent item.
 
     allowed: can.function(tag, link, world)
@@ -150,15 +145,15 @@ def set_features(item, category, keywords):
     settings.update(keywords)
     if (settings['referring'] is not None and
         len(settings['referring']) > 0 and '|' not in settings['referring']):
-        raise StandardError('The item tagged "' + str(item) +
+        raise Exception('The item tagged "' + str(item) +
          '" has a nonempty "referring" attribute without a "|" ' +
          'separator. Place "|" after any optional words and before ' +
          'any names, at the very beginning or end, if appropriate.')
     if category not in settings['qualities']:
         settings['qualities'] += [category]
-    for (name, value) in settings.items():
+    for (name, value) in list(settings.items()):
         if re.search('[^a-z_]', name):
-            raise StandardError('A feature with invalid name "' + name +
+            raise Exception('A feature with invalid name "' + name +
              '" is used in the fiction module.')
         setattr(item, name, value)
     return item
@@ -166,21 +161,21 @@ def set_features(item, category, keywords):
 class Item(object):
     'Abstract base class for items.'
 
-    def __init__(self, tag_and_parent, category, **keywords):        
+    def __init__(self, tag_and_parent, category, **keywords):
         if self.__class__ == Item:
-            raise StandardError('Attempt in Item "' + self._tag +
+            raise Exception('Attempt in Item "' + self._tag +
                   '" to instantiate abstract base class world_model.Item')
         if tag_and_parent == '@cosmos':
             self._tag = tag_and_parent
             (self.link, self.parent) = (None, None)
         else:
             (self._tag, self.link, self.parent) = tag_and_parent.split()
-        if (not type(self._tag) == types.StringType) or len(self._tag) == 0:
-            raise StandardError('An Item lacking a "tag" attribute, ' +
+        if (not type(self._tag) == str) or len(self._tag) == 0:
+            raise Exception('An Item lacking a "tag" attribute, ' +
              'or with a non-string or empty tag, has been specified. A ' +
              'valid tag is required for each item.')
         if not re.match('@[a-z0-9_]{2,30}', self._tag):
-            raise StandardError('The tag "' + self._tag +
+            raise Exception('The tag "' + self._tag +
              '" is invalid. Tags start with "@" and otherwise consist of ' +
              '2-30 characters which are only lowercase letters, numerals, ' +
              'and underscores.')
@@ -196,7 +191,7 @@ class Item(object):
         # Referring extra: The string with "extra" referring expressions.
         # Qualities: These are expanded into elements of a referring expression.
         #
-        # Once the four setters run, whichever one runs last will leave 
+        # Once the four setters run, whichever one runs last will leave
         # "._referring" in the correct state.
         self._called = ([], '', [])
         self._gender = 'neuter'
@@ -215,7 +210,7 @@ class Item(object):
     def __eq__(self, item):
         if item is None:
             return False
-        if type(item) == types.StringType:
+        if type(item) == str:
             return str(self) == item
         self_list = [str(self), self.article, self.called]
         item_list = [str(item), item.article, item.called]
@@ -461,11 +456,11 @@ class Actor(Item):
 
     def do_command(self, command_words, command_map, concept):
         'Return the Action that would result from the provided command.'
-        if type(command_words) == types.StringType:
+        if type(command_words) == str:
             command_words = command_words.split()
         head = command_words[0].lower()
         if not hasattr(command_map, head):
-            raise StandardError('The command headed with "' + head +
+            raise Exception('The command headed with "' + head +
              '" is defined in the discourse, but the routine to build an ' +
              'action from it is missing.')
         else:
@@ -494,7 +489,7 @@ class Room(Item):
     Features that are particular to Rooms:
 
     exits: dictionary of string: string
-        The key is a direction; the value is the tag of the Door or Room in 
+        The key is a direction; the value is the tag of the Door or Room in
         that direction.
 
     shared: list of strings
@@ -555,8 +550,8 @@ class SharedThing(Thing):
     sun, or a massive wall of the sort the United States has erected along the
     US/Mexico border. Because shared things are meant to represent these sorts
     of entities, they have an allowed expression that always returns False.
-    Nothing can be placed in one, on one, through one, be part of one, or be 
-    held by one. If it were possible, for instance, to place a sticker on a 
+    Nothing can be placed in one, on one, through one, be part of one, or be
+    held by one. If it were possible, for instance, to place a sticker on a
     massive border wall, this implementation would make the sticker visible in
     every room along the border, which makes no sense.
 
@@ -580,4 +575,3 @@ class Substance(Item):
         tag_and_parent = tag + ' of @cosmos'
         keywords['allowed'] = can.have_any_item
         Item.__init__(self, tag_and_parent, 'substance', **keywords)
-

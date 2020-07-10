@@ -1,10 +1,5 @@
-'Translate commands, from user input or elsewhere, to Actions.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Translate commands, from user input or elsewhere, to Actions.'
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 from action_model import Behave, Configure, Modify, Sense
 
@@ -91,7 +86,7 @@ def fill_with(agent, tokens, _):
     'to make full with a substance; to supply with as much as can be contained'
     [new_parent, substance] = tokens[1:3]
     return Configure('fill', agent,
-                     template='[agent/s] [fill/v] [indirect/o] with ' + 
+                     template='[agent/s] [fill/v] [indirect/o] with ' +
                               '[direct/o]',
                      direct=substance, new=('in', new_parent))
 
@@ -103,7 +98,7 @@ def fill_from(agent, tokens, concept):
     else:
         direct = '@cosmos'
     return Configure('fill', agent,
-                     template='[agent/s] [fill/v] [indirect/o] from [' + 
+                     template='[agent/s] [fill/v] [indirect/o] from [' +
                               source + '/o]',
                      direct=direct, old=('in', source), new=('in', vessel))
 
@@ -111,7 +106,7 @@ def fill_with_from(agent, tokens, _):
     'to make full with a substance from a source or vessel'
     [vessel, substance, source] = tokens[1:4]
     return Configure('fill', agent,
-                     template='[agent/s] [fill/v] [indirect/o] with ' + 
+                     template='[agent/s] [fill/v] [indirect/o] with ' +
                               '[direct/o] from [' + source + '/o]',
                      direct=substance, old=('in', source), new=('in', vessel))
 
@@ -124,7 +119,7 @@ def free_from(agent, tokens, concept):
     'to bring out from some specified compartment'
     [direct, container] = tokens[1:3]
     link = 'in'
-    if (container in concept.item and 
+    if (container in concept.item and
         concept.item[container] == concept.item[direct].parent):
         link = concept.item[direct].link
     room_tag = str(concept.room_of(agent))
@@ -172,7 +167,7 @@ def leave(agent, tokens, _):
 def leave_from(agent, tokens, concept):
     'to bring oneself out of some location'
     link = 'in'
-    if (tokens[1] in concept.item and 
+    if (tokens[1] in concept.item and
         concept.item[tokens[1]] == concept.item[agent].parent):
         link = concept.item[agent].link
     room_tag = str(concept.room_of(agent))
@@ -271,7 +266,7 @@ def remove_from(agent, tokens, concept):
     if (direct == agent):
         return free_from(agent, tokens, concept)
     link = 'in'
-    if (container in concept.item and 
+    if (container in concept.item and
         concept.item[container] == concept.item[direct].parent):
         link = concept.item[direct].link
     template = '[agent/s] [remove/v] [direct/o] from [' + container + '/o]'
@@ -381,14 +376,14 @@ def turn_to(agent, tokens, _):
 def open_up(agent, tokens, concept):
     """to make or set open; to render free of access
 
-    Since 'open' is a builtin function, this one is called 'open_up.'"""    
+    Since 'open' is a builtin function, this one is called 'open_up.'"""
     to_be_opened = check_for_metonymy(tokens[1], concept)
     return Modify('open', agent,
                   direct=to_be_opened, feature='open', old=False, new=True)
 
 def open_with(agent, tokens, world):
     'to attempt to make or set open using a tool; to render free of access'
-    if (hasattr(world.item[tokens[1]], 'locked') and 
+    if (hasattr(world.item[tokens[1]], 'locked') and
         world.item[tokens[1]].locked):
         return Modify('unlock', agent,
                       direct=tokens[1], feature='locked', old=True, new=False)
@@ -405,7 +400,7 @@ def unlock(agent, tokens, _):
 def utter(agent, tokens, _):
     'to speak; to pronounce (to no one in particular)'
     said = ' '.join(tokens[1:])
-    return Behave('say', agent, 
+    return Behave('say', agent,
                   template='[agent/s] [say/v] [utterance]', utterance=said)
 
 def wait(agent, _, __):
@@ -433,4 +428,3 @@ def wear(agent, tokens, _):
     return Configure('wear', agent,
                      template='[agent/s] [put/v] [direct/o] on',
                      direct=tokens[1], old=('of', agent), new=('on', agent))
-

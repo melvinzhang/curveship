@@ -697,7 +697,7 @@ class Wanderer(Actor):
 
     def act(self, command_map, world):
         if random() > .2 and len(self.exits(world)) > 0:
-            way = choice(self.exits(world).keys())
+            way = choice(list(self.exits(world).keys()))
             return [self.do_command('exit ' + way, command_map, world)]
 
 

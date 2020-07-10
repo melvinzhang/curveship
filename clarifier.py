@@ -1,10 +1,5 @@
-'Deal with unrecognized inputs, including ambiguous ones.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Deal with unrecognized inputs, including ambiguous ones.'
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import re
 
@@ -19,7 +14,7 @@ def english_command(tokens, concept, discourse):
     line = ''
     i = 1
     for part in discourse.command_canonical[verb].split():
-        if (part in ['ACCESSIBLE', 'ACTOR', 'DESCENDANT', 'NEARBY', 
+        if (part in ['ACCESSIBLE', 'ACTOR', 'DESCENDANT', 'NEARBY',
                      'NOT-DESCENDANT', 'WORN']):
             line += concept.item[tokens[i]].noun_phrase(discourse)
             i += 1
@@ -63,8 +58,8 @@ def clarify(user_input, concept, discourse, in_stream, out_streams):
                 pass
         if selected is None or selected < 1 or selected > len(commands):
             clarification = ('\n(Since you did not select '+
-                             discourse.list_phrases(range(1, len(commands) + 1),
-                             conjunction='or') + ', the command "' + 
+                             discourse.list_phrases(list(range(1, len(commands) + 1)),
+                             conjunction='or') + ', the command "' +
                              str(user_input) +
                              '" cannot be understood. Try something else.)')
         else:
@@ -74,4 +69,3 @@ def clarify(user_input, concept, discourse, in_stream, out_streams):
 
     presenter.present(clarification, out_streams)
     return user_input
-

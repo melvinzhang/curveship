@@ -1,10 +1,5 @@
-'Rules for what can be a child of an item for use in fictions.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Rules for what can be a child of an item for use in fictions.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 def have_any_item(link, tag, world):
     'Mainly to turn off checking in non-interactive plots, not for IF.'
@@ -47,4 +42,3 @@ def contain_any_thing(tag, link, world):
 
 def contain_and_support_things(tag, link, world):
     return link in ['in', 'on'] and have_only_things(tag, link, world)
-

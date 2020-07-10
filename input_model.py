@@ -1,10 +1,5 @@
-'Represent different user inputs (commands, directives, unrecognized).'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Represent different user inputs (commands, directives, unrecognized).'
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 class RichInput(object):
     'Encapsulates a user input string and information derived from it.'
@@ -31,7 +26,7 @@ class RichInput(object):
     def set_category(self, value):
         'Setter for the input category (e.g., "command").'
         if value not in ['unrecognized', 'command', 'directive']:
-            raise StandardError('"' + value + '" was given as an input ' +
+            raise Exception('"' + value + '" was given as an input ' +
                                 'category but is not a valid category.')
         self._category = value
         self.unrecognized = (value == 'unrecognized')
@@ -121,4 +116,3 @@ class InputList(object):
     def count_unrecognized(self):
         'Counts unrecognized inputs in the session and current traversal.'
         return self._count('unrecognized')
-

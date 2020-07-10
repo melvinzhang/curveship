@@ -1,10 +1,5 @@
-'Tokenize input text for the Recognizer.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Tokenize input text for the Recognizer.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import sys
 import re
@@ -20,7 +15,7 @@ def prepare(separator, prompt='', in_stream=sys.stdin, out_stream=sys.stdout):
 
     Andrew Plotkin fixed this so that up arrow fetches the previous command."""
     if (hasattr(in_stream, 'isatty') and in_stream.isatty()):
-        input_string = raw_input(prompt)
+        input_string = input(prompt)
     else:
         out_stream.write(prompt)
         input_string = in_stream.readline()
@@ -52,5 +47,4 @@ def tokenize(input_string, separator):
 
 if __name__ == "__main__":
     TEST_INPUT = prepare()
-    print TEST_INPUT.tokens
-
+    print(TEST_INPUT.tokens)

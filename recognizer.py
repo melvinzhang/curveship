@@ -1,10 +1,5 @@
-'Understand prepared user input as commands or directives. The "parser."'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Understand prepared user input as commands or directives. The "parser."
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import copy
 import re
@@ -46,7 +41,7 @@ def nonterminal(nonterm, discourse, concept):
     phrases = []
     agent = discourse.spin['commanded']
     if nonterm == 'RELATION':
-        link_names = discourse.english_to_link.items()
+        link_names = list(discourse.english_to_link.items())
         link_names.sort()
         # Sorted here because 'onto' should be listed before 'on' and so on,
         # so the list of name to link mappings is reversed.
@@ -70,7 +65,7 @@ def nonterminal(nonterm, discourse, concept):
         for i in worn(agent, concept):
             phrases.append((noun_phrase(concept.item[i], discourse), i))
     elif nonterm == 'DIRECTION':
-        for (i, j) in discourse.compass.items():
+        for (i, j) in list(discourse.compass.items()):
             phrases.append((discourse.determiner + i, j))
     elif nonterm == 'NEARBY':
         if agent == '@cosmos':
@@ -83,7 +78,7 @@ def nonterminal(nonterm, discourse, concept):
         elif concept.item[str(agent_room)].door:
             rooms_visible = concept.item[str(agent_room)].connects
         else:
-            rooms_visible = agent_room.view.keys()
+            rooms_visible = list(agent_room.view.keys())
         for room in [str(agent_room)] + rooms_visible:
             for i in [room] + concept.descendants(room):
                 phrases.append((noun_phrase(concept.item[i], discourse), i))

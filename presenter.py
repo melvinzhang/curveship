@@ -1,10 +1,5 @@
-'Format and display the output text.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Format and display the output text.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import os
 import re
@@ -25,7 +20,7 @@ def ioctl_term_size(filed):
 
 def terminal_size():
     """Determine the terminal size or set a default size if that fails.
-    
+
     From Chuck Blake's code, http://pdos.csail.mit.edu/~cblake/cls/cls.py
     Modifications by Doug Orleans to allow Curveship to run in GNU Emacs."""
     rows_cols = ioctl_term_size(0) or ioctl_term_size(1) or ioctl_term_size(2)
@@ -94,4 +89,3 @@ def center(string, out_streams, pre='', post='\n'):
         out_streams.write(' ' + spaces + next_line)
         if len(string) > 0:
             out_streams.write('\n')
-

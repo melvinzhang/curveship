@@ -1,10 +1,5 @@
-'Plan a reply, as in "document planning" (but this is a reply in a dialogue).'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Plan a reply, as in "document planning" (but this is a reply in a dialogue).
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import operator
 import random
@@ -43,14 +38,14 @@ def produce_analepsis(key_action, previous, concept, discourse):
     'Finds an analepsis based on and to be inserted after the key Action.'
     if hasattr(key_action, 'direct'):
         for action in previous:
-            if (hasattr(action, 'direct') and 
+            if (hasattr(action, 'direct') and
                 action.direct == key_action.direct and
                 not concept.item[action.direct] == '@adventurer'):
                 intro = Commentary("Ah, let's remember ...")
                 room = NameRoom(action)
                 tell_action = TellAction(action)
                 outro = Commentary("Yes, that was a fine recollection.")
-                return [structure_nodes([intro, room, tell_action, outro], 
+                return [structure_nodes([intro, room, tell_action, outro],
                                         discourse.follow, key_action.end,
                                         discourse)]
     return []
@@ -159,7 +154,7 @@ def plan(action_ids, concept, discourse):
             limit = actions[-1].id - 4
             previous = [concept.act[i] for i in
                         range(1, limit) if i in concept.act]
-            analepsis = produce_analepsis(actions[0], previous, concept, 
+            analepsis = produce_analepsis(actions[0], previous, concept,
                                           discourse)
             nodes = nodes[:1] + analepsis + nodes[1:]
         reply_plan = structure_nodes(nodes, reference_time, speech_time,
@@ -176,7 +171,7 @@ class ReplyNode(object):
 
     def __init__(self, category):
         if self.__class__ == ReplyNode:
-            raise StandardError('Attempt to instantiate abstract base ' +
+            raise Exception('Attempt to instantiate abstract base ' +
                                 'class reply_planner.ReplyNode')
         self.category = category
 
@@ -235,4 +230,3 @@ class TellAction(Leaf):
 
     def __init__(self, info):
         Leaf.__init__(self, 'action', info)
-

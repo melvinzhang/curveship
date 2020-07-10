@@ -49,10 +49,10 @@ SHINE.after ="""
 
 once they were supposed to cluster [here]
 
-[@visitor/s] [arrive/ed/v], visitor to this place where [@visitor/s] briefly 
+[@visitor/s] [arrive/ed/v], visitor to this place where [@visitor/s] briefly
 lived years ago, where [@visitor/s] knew spaces and faces now almost forgotten
 
-there is one [here] less lost to you than the others, though, and it [is/1/v] 
+there is one [here] less lost to you than the others, though, and it [is/1/v]
 right [here] in this plaza, about [now], that [@visitor/s] [are/v] to meet him
 
 somewhere right around [here]"""
@@ -66,9 +66,9 @@ class Distance_Filter:
     'Increases narrative distance by changing to less immediate styles.'
 
     def __init__(self, how_far):
-        self.suffixes = [', apparently ', ', evidently', ', or so it seemed', 
+        self.suffixes = [', apparently ', ', evidently', ', or so it seemed',
                          ', if memory serves', ', perhaps']
-        self.prefixes = ['it seemed that','it appeared that', 
+        self.prefixes = ['it seemed that','it appeared that',
                          'it looked like','it was as if','no doubt,']
         # For each step of distance, we roll one die; that is, 0 if we are at
         # distance 0, 8 if we are at distance 8, etc.
@@ -115,7 +115,7 @@ class Cosmos(Actor):
             str(concept.item['@visitor'].place(concept)) == '@plaza_center'):
             smile = Behave('smile', '@visitor')
             smile.final = True
-            smile.before = """[@visitor/s] [turn/v] and [see/v] [@visitor's] 
+            smile.before = """[@visitor/s] [turn/v] and [see/v] [@visitor's]
                            friend"""
             actions.append(smile)
         return actions
@@ -248,7 +248,7 @@ items = fiction.plaza.items + [
         qualities=['person', 'woman'],
         gender='female',
         angry=True,
-        script=['kick @tree', 'wait', 'wait', 'leave southeast', 
+        script=['kick @tree', 'wait', 'wait', 'leave southeast',
                 'kick @obelisk', 'wait', 'wait', 'leave north', 'leave west'],
         script_loops=True,
         start=10),
@@ -291,4 +291,3 @@ items = fiction.plaza.items + [
         article='a',
         called='ball',
         referring='| ball baseball')]
-

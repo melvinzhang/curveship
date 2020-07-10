@@ -1,10 +1,5 @@
-'Text planning: Set tense and referring expressions, lexicalize.'
-
-__author__ = 'Nick Montfort'
-__copyright__ = 'Copyright 2011 Nick Montfort'
-__license__ = 'ISC'
-__version__ = '0.5.0.0'
-__status__ = 'Development'
+"""Text planning: Set tense and referring expressions, lexicalize.
+Part of Curveship.py (Python 3 Curveship) - Nick Montfort, 2019."""
 
 import random
 import re
@@ -15,7 +10,7 @@ from realizer import Section, Paragraph, Heading
 
 def has_final(node):
     final = False
-    if (hasattr(node, 'info') and hasattr(node.info, 'final') and 
+    if (hasattr(node, 'info') and hasattr(node.info, 'final') and
         node.info.final):
         final = True
     elif hasattr(node, 'children'):
@@ -108,7 +103,7 @@ def name_room(node, tense_er, tense_rs, concept_now, discourse):
 
 def select(string_or_list):
     'Return a string, either the one passed or a random element from a list.'
-    if type(string_or_list) == types.StringType:
+    if type(string_or_list) == str:
         return string_or_list
     else:
         return random.choice(string_or_list)
@@ -281,7 +276,7 @@ def describe(tag, tense_er, tense_rs, speed, concept, discourse, sensor, time):
     item = concept.item[tag]
     if item == concept.compartment_of(sensor):
         to_exclude += concept.descendants(sensor)
-    to_mention = [i for i in concept.descendants(tag, stop='opaque') 
+    to_mention = [i for i in concept.descendants(tag, stop='opaque')
                           if i not in to_exclude]
     for desc_tag in to_mention:
         desc_item = concept.item[desc_tag]
@@ -293,7 +288,7 @@ def describe(tag, tense_er, tense_rs, speed, concept, discourse, sensor, time):
             else:
                 link = desc_item.link
                 link_name = discourse.link_to_english[link][0]
-                child_sentences.append('[' + desc_tag + '/s] [is/v]' + 
+                child_sentences.append('[' + desc_tag + '/s] [is/v]' +
                                    link_name + ' [' + desc_item.parent + '/o]')
     description_block = []
     current_sentences = []
@@ -330,7 +325,7 @@ def describe(tag, tense_er, tense_rs, speed, concept, discourse, sensor, time):
                     if len(children['on']) > 0:
                         contents += ' and'
                 if len(children['on']) > 0:
-                    contents += (' [wear/ing/v] ' + 
+                    contents += (' [wear/ing/v] ' +
                                  discourse.list_phrases(slots(children['on'],
                                                         role='s')))
             elif len(children['on']) > 0:
@@ -387,4 +382,3 @@ def describe(tag, tense_er, tense_rs, speed, concept, discourse, sensor, time):
                     tense_er, tense_rs, discourse.spin['progressive'])
         blocks += [far_off]
     return blocks
-
